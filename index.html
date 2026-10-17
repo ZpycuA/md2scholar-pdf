@@ -268,8 +268,9 @@ button.primary:hover { background: #2559c9; border-color: #2559c9; }
 /* ---------- 自定义条目 ---------- */
 .z-item {
   display: grid;
-  grid-template-columns: var(--z-head-w, max-content) 1fr;
+  grid-template-columns: var(--z-head-w, max-content) minmax(0, 1fr);
   column-gap: 1.15em;
+  align-items: start;
   margin: .58em 0;
   break-inside: avoid;
   page-break-inside: avoid;
@@ -288,15 +289,17 @@ button.primary:hover { background: #2559c9; border-color: #2559c9; }
 .z-body .z-item { margin: .35em 0; }
 .z-body .z-head { font-weight: 700; }
 
-/* ★ 例题 / 点拨：方框 + 浅灰底 */
+/* ★ 例题 / 点拨：完整方框 + 浅灰底（不越界，不被裁剪） */
 .z-item[data-ztype="zExample"],
 .z-item[data-ztype="zTip"] {
-  border: 1px solid #dde3ea;
-  border-radius: 4px;
+  border: 1px solid #d5dce6;
+  border-radius: 5px;
   background: #f7f8fa;
   padding: .62em .9em;
-  margin: .72em -.9em;
+  margin: .75em 0;
   column-gap: 1em;
+  break-inside: avoid;
+  page-break-inside: avoid;
 }
 
 /* =========================================================
@@ -726,12 +729,18 @@ function expandZBlocks(root) {
 
 /* =========================================================
    6. 自动编号
-   标题占用自己的层级；条目编号 = 当前标题路径 + 序号
+   —— 标题占用层级路径（如 1、1.2、1.2.3）
+   —— 条目编号 = 当前标题路径 + 【该类型】在本标题下的独立序号
+      例：标题 1.2 下 → 定义 1.2.1、定理 1.2.1、例 1.2.1、再一个定义 1.2.2
    ========================================================= */
 function numberItems(root) {
   const nodes = root.querySelectorAll('h1,h2,h3,h4,h5,h6,.z-item');
-  const hc = [];
-  let itemN = 0;
+  const hc = [];                        /* 标题层级计数 */
+  const counters = Object.create(null); /* 按条目类型独立计数 */
+
+  const resetCounters = () => {
+    for (const k in counters) delete counters[k];
+  };
 
   nodes.forEach(el => {
     if (/^H[1-6]$/.test(el.tagName)) {
@@ -739,19 +748,29 @@ function numberItems(root) {
       if (hc.length > d) hc.length = d;
       while (hc.length < d) hc.push(0);
       hc[d - 1] = (hc[d - 1] || 0) + 1;
-      itemN = 0;
+
+      /* 进入新的标题，所有类型计数归零 */
+      resetCounters();
+
       el.dataset.num = hc.filter(v => v > 0).join('.') || '1';
     } else {
-      itemN++;
-      const prefix = hc.filter(v => v > 0).join('.');
-      const num = prefix ? prefix + '.' + itemN : String(itemN);
+      const tag = el.dataset.ztype || 'zItem';
+      counters[tag] = (counters[tag] || 0) + 1;
+
+      const path = hc.filter(v => v > 0);
+      const prefix = path.join('.');
+      const num = prefix ? prefix + '.' + counters[tag] : String(counters[tag]);
+
       el.dataset.num = num;
+      el.dataset.level = String(path.length || 1);
 
       const head = el.querySelector(':scope > .z-head');
       if (head) {
         const name = Z_ITEM_TYPES[el.dataset.ztype] || '条目';
         const desc = el.dataset.zdesc;
-        head.textContent = desc ? (name + ' ' + num + '（' + desc + '）') : (name + ' ' + num);
+        head.textContent = desc
+          ? (name + ' ' + num + '（' + desc + '）')
+          : (name + ' ' + num);
       }
     }
   });
@@ -846,32 +865,46 @@ function makePage(kind) {
    ========================================================= */
 function flowInto(items, kind, host) {
   const pages = [];
+
   let page = makePage(kind);
   host.appendChild(page.el);
   pages.push(page);
 
   let body = page.body;
-  let tall = false;
+  let sealed = false;   /* 该页已被单个超高块撑高，后续内容另起一页 */
+
+  const newPage = () => {
+    page = makePage(kind);
+    host.appendChild(page.el);
+    pages.push(page);
+    body = page.body;
+    sealed = false;
+  };
+
+  const isOverflow = () => body.scrollHeight > body.clientHeight + 1;
 
   for (const item of items) {
+    if (sealed) newPage();
+
     body.appendChild(item);
 
-    if (!tall && body.scrollHeight > body.clientHeight + 1) {
-      if (body.children.length === 1) {
-        // 单个块高于一页 → 允许该页自动长高
-        tall = true;
+    if (!isOverflow()) continue;
+
+    if (!sealed && body.children.length === 1) {
+      /* 单个块本身高于一页：允许该页自动长高 */
+      page.el.classList.add('page-tall');
+      sealed = true;
+    } else {
+      body.removeChild(item);
+      newPage();
+      body.appendChild(item);
+      if (isOverflow()) {
         page.el.classList.add('page-tall');
-      } else {
-        body.removeChild(item);
-        page = makePage(kind);
-        host.appendChild(page.el);
-        pages.push(page);
-        body = page.body;
-        tall = false;
-        body.appendChild(item);
+        sealed = true;
       }
     }
   }
+
   return pages;
 }
 
@@ -916,7 +949,7 @@ function buildTOCRows(pages) {
         isItem = true;
         const head = el.querySelector(':scope > .z-head');
         text = head ? head.textContent.trim() : '';
-        level = Math.min(6, (el.dataset.num || '1').split('.').length + 1);
+        level = Math.min(6, (parseInt(el.dataset.level, 10) || 1) + 1);
       }
 
       if (!text) return;
@@ -948,6 +981,7 @@ function buildTOCRows(pages) {
 
 function flowTOC(rows, host) {
   const pages = [];
+
   let page = makePage('toc');
   host.appendChild(page.el);
   pages.push(page);
@@ -958,26 +992,39 @@ function flowTOC(rows, host) {
   page.body.appendChild(heading);
 
   let body = page.body;
-  let tall = false;
+  let sealed = false;
+
+  const newPage = () => {
+    page = makePage('toc');
+    host.appendChild(page.el);
+    pages.push(page);
+    body = page.body;
+    sealed = false;
+  };
+
+  const isOverflow = () => body.scrollHeight > body.clientHeight + 1;
 
   for (const row of rows) {
+    if (sealed) newPage();
+
     body.appendChild(row);
 
-    if (!tall && body.scrollHeight > body.clientHeight + 1) {
-      if (body.children.length === 1) {
-        tall = true;
+    if (!isOverflow()) continue;
+
+    if (!sealed && body.children.length === 1) {
+      page.el.classList.add('page-tall');
+      sealed = true;
+    } else {
+      body.removeChild(row);
+      newPage();
+      body.appendChild(row);
+      if (isOverflow()) {
         page.el.classList.add('page-tall');
-      } else {
-        body.removeChild(row);
-        page = makePage('toc');
-        host.appendChild(page.el);
-        pages.push(page);
-        body = page.body;
-        tall = false;
-        body.appendChild(row);
+        sealed = true;
       }
     }
   }
+
   return pages;
 }
 
@@ -1055,7 +1102,9 @@ function render() {
 
   /* ⑦ 对齐条目标签宽度 */
   const headW = measureZHeads(stage);
-  document.documentElement.style.setProperty('--z-head-w', headW + 'px');
+  if (headW > 0) {
+    document.documentElement.style.setProperty('--z-head-w', headW + 'px');
+  }
   void stage.offsetWidth;
 
   /* ⑧ 取出顶层块，清空 stage */
@@ -1191,6 +1240,12 @@ $('fileInput').addEventListener('change', e => {
 
 /* ---- 导出 HTML ---- */
 $('btnExport').addEventListener('click', () => {
+  /* 导出前清除屏幕缩放，导出后恢复 */
+  const savedTransform = pagesEl.style.transform;
+  const savedMargin = pagesEl.style.marginBottom;
+  pagesEl.style.transform = '';
+  pagesEl.style.marginBottom = '';
+
   const docStyle = Array.from(document.querySelectorAll('style'))
     .map(s => s.textContent).join('\n');
 
@@ -1204,7 +1259,7 @@ $('btnExport').addEventListener('click', () => {
 '<head>\n' +
 '<meta charset="UTF-8">\n' +
 '<meta name="viewport" content="width=device-width, initial-scale=1">\n' +
-'<title>' + (extractTitle() || '学术文档') + '</title>\n' +
+'<title>' + escapeHtml(extractTitle() || '学术文档') + '</title>\n' +
 '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">\n' +
 '<style>\n' +
 'body { margin:0; background:#e6e9ee; padding:26px 0 80px; }\n' +
@@ -1220,6 +1275,9 @@ docStyle + '\n' +
 bodyHtml + '\n' +
 '</body>\n' +
 '</html>';
+
+  pagesEl.style.transform = savedTransform;
+  pagesEl.style.marginBottom = savedMargin;
 
   download(extractTitle() || '学术文档', out);
 });
