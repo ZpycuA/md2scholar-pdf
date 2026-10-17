@@ -1,4 +1,4 @@
-# Academic Markdown Typesetter
+# md2scholar-pdf
 
 A browser-based academic typesetting tool. Write in Markdown, add semantic tags for definitions / theorems / examples, and print or export a clean A4 document — with cover page, table of contents, running headers, footers, and page numbers.
 
@@ -44,7 +44,7 @@ Everything runs client-side. No build step, no server, no dependencies to instal
 
 ## Quick Start
 
-1. Download `academic-typesetter.html` (or whatever you name the file).
+1. Download `index.html` 
 2. Open it in a modern browser (Chrome, Edge, Firefox, Safari).
 3. Write Markdown in the left pane. The right pane previews the paginated document.
 4. Click **Print / Save PDF** to export a PDF, or **Export HTML** to save a standalone file.
