@@ -54,6 +54,7 @@ button.primary:hover { background: #2559c9; border-color: #2559c9; }
   background: #fff; border: 1px solid #dfe5ec; border-radius: 10px;
   box-shadow: 0 8px 28px rgba(20,30,50,.16);
   padding: 14px 16px 16px; z-index: 300; font-size: 13px;
+  max-height: calc(100vh - 80px); overflow-y: auto;
 }
 .settings-panel h4 {
   margin: 0 0 12px; font-size: 13px; color: #5b6472;
@@ -73,6 +74,34 @@ button.primary:hover { background: #2559c9; border-color: #2559c9; }
 .val { min-width: 44px; text-align: right; color: #6b7480; font-variant-numeric: tabular-nums; }
 .sep { height: 1px; background: #edf0f4; margin: 4px 0 12px; }
 
+/* ---------- 索引词条选择器 ---------- */
+.index-terms {
+  margin-top: 6px; border: 1px solid #e4e8ee; border-radius: 6px;
+  overflow: hidden; background: #fff;
+}
+.it-head {
+  display: flex; align-items: center; gap: 6px;
+  padding: 5px 8px; background: #f5f7fa;
+  font-size: 12px; color: #5b6472;
+}
+.it-head > span { flex: 1; }
+.it-list { max-height: 190px; overflow-y: auto; padding: 4px 0; }
+.settings-panel label.it-row {
+  display: flex; align-items: center; gap: 6px;
+  margin-bottom: 0; padding: 2px 8px; font-size: 12px;
+  cursor: pointer; color: #333a44;
+}
+.settings-panel label.it-row:hover { background: #f5f7fa; }
+.settings-panel label.it-row > span {
+  flex: 1 1 auto; min-width: 0;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  color: #333a44;
+}
+button.mini {
+  padding: 1px 7px; font-size: 11px; height: 20px;
+  line-height: 16px; border-radius: 4px;
+}
+
 /* ---------- 工作区 ---------- */
 .workspace { flex: 1; display: flex; min-height: 0; }
 
@@ -88,6 +117,33 @@ button.primary:hover { background: #2559c9; border-color: #2559c9; }
   border-bottom: 1px solid #e8ecf1; background: #f5f7fa; flex-shrink: 0;
 }
 .stat { font-variant-numeric: tabular-nums; }
+.stat .saved { color: #2f9e6b; margin-left: 6px; opacity: 0; transition: opacity .25s; }
+.stat .saved.on { opacity: 1; }
+
+/* ---------- 便捷工具栏 ---------- */
+.md-toolbar {
+  display: flex; flex-wrap: wrap; align-items: center;
+  gap: 3px 5px; padding: 6px 10px;
+  background: #f5f7fa; border-bottom: 1px solid #e8ecf1;
+  flex-shrink: 0;
+}
+.tb-group { display: flex; gap: 2px; }
+.tb-sep { width: 1px; height: 16px; background: #dfe4ea; margin: 0 3px; }
+
+.md-toolbar button {
+  font-family: inherit; font-size: 12px;
+  height: 26px; line-height: 24px; padding: 0 8px;
+  border-radius: 4px; border: 1px solid #dde3ea;
+  background: #fff; color: #2d3540; cursor: pointer;
+  white-space: nowrap; transition: background .12s, border-color .12s, color .12s;
+}
+.md-toolbar button:hover { background: #eef4ff; border-color: #b9cdf5; color: #1c4bb5; }
+.md-toolbar button:active { transform: translateY(1px); }
+.md-toolbar button b, .md-toolbar button i { font-size: 13px; }
+.md-toolbar button.tb-z {
+  color: #2456c8; border-color: #d5e0f7; background: #f6f9ff;
+}
+.md-toolbar button.tb-z:hover { background: #e8f0ff; border-color: #a9c2f0; }
 
 #editor {
   flex: 1; border: none; outline: none; resize: none;
@@ -202,7 +258,7 @@ button.primary:hover { background: #2559c9; border-color: #2559c9; }
 }
 
 /* =========================================================
-   文档正文排版（.doc-body 同时用于 stage 和 page-body）
+   文档正文排版
    ========================================================= */
 .doc-body { font-family: var(--doc-font, serif); }
 
@@ -289,7 +345,6 @@ button.primary:hover { background: #2559c9; border-color: #2559c9; }
 .z-body .z-item { margin: .35em 0; }
 .z-body .z-head { font-weight: 700; }
 
-/* ★ 例题 / 点拨：完整方框 + 浅灰底（不越界，不被裁剪） */
 .z-item[data-ztype="zExample"],
 .z-item[data-ztype="zTip"] {
   border: 1px solid #d5dce6;
@@ -325,6 +380,38 @@ button.primary:hover { background: #2559c9; border-color: #2559c9; }
   font-variant-numeric: tabular-nums; color: #333;
 }
 .toc-row.is-item .toc-text { color: #444c56; }
+
+/* =========================================================
+   索引（自适应压缩）
+   ========================================================= */
+.index-heading {
+  font-size: 1.35em; font-weight: 700; text-align: center;
+  margin: .2em 0 1.1em; letter-spacing: .5em; text-indent: .5em;
+}
+.index-list {
+  font-size: calc(1em * var(--idx-scale, 1));
+  line-height: 1.9;
+  text-align: left;
+}
+.idx-row {
+  display: flex; align-items: baseline;
+  break-inside: avoid; page-break-inside: avoid;
+  padding: .05em 0;
+}
+.idx-term {
+  flex: 0 1 auto; max-width: 80%;
+  overflow-wrap: break-word; word-break: break-word;
+}
+.idx-dots {
+  flex: 1 1 auto; min-width: 1.2em;
+  border-bottom: 1px dotted #c3cad3;
+  margin: 0 .45em;
+  transform: translateY(-.28em);
+}
+.idx-pages {
+  flex: 0 0 auto; min-width: 1.6em; text-align: right;
+  font-variant-numeric: tabular-nums; color: #3a424c;
+}
 
 /* =========================================================
    离屏测量容器
@@ -364,7 +451,7 @@ button.primary:hover { background: #2559c9; border-color: #2559c9; }
     background: #fff !important;
     display: block !important;
   }
-  .no-print, .toolbar, .editor-pane, .settings-panel { display: none !important; }
+  .no-print, .toolbar, .editor-pane, .settings-panel, .md-toolbar { display: none !important; }
   .workspace { display: block !important; height: auto !important; overflow: visible !important; }
   .preview-pane {
     overflow: visible !important;
@@ -409,6 +496,7 @@ button.primary:hover { background: #2559c9; border-color: #2559c9; }
 <header class="toolbar no-print">
   <div class="brand">学术 Markdown <span>·</span> 排版工具</div>
   <div class="spacer"></div>
+  <button id="btnSave" title="保存到本地浏览器">保存</button>
   <button id="btnSample">示例文档</button>
   <button id="btnOpen">打开 .md</button>
   <button id="btnExport">导出 HTML</button>
@@ -423,8 +511,43 @@ button.primary:hover { background: #2559c9; border-color: #2559c9; }
       <span>Markdown 源文件</span>
       <span class="stat" id="stat"></span>
     </div>
+
+    <div class="md-toolbar no-print" id="mdToolbar">
+      <div class="tb-group">
+        <button data-act="bold" title="加粗（Ctrl+B）"><b>B</b></button>
+        <button data-act="italic" title="斜体（Ctrl+I）"><i>I</i></button>
+        <button data-act="strike" title="删除线"><s>S</s></button>
+        <button data-act="code" title="行内代码">&lt;/&gt;</button>
+        <button data-act="math" title="行内公式">$x$</button>
+      </div>
+      <div class="tb-sep"></div>
+      <div class="tb-group">
+        <button data-act="h1" title="一级标题">H1</button>
+        <button data-act="h2" title="二级标题">H2</button>
+        <button data-act="h3" title="三级标题">H3</button>
+      </div>
+      <div class="tb-sep"></div>
+      <div class="tb-group">
+        <button data-act="ul" title="无序列表">•</button>
+        <button data-act="ol" title="有序列表">1.</button>
+        <button data-act="quote" title="引用">❝</button>
+        <button data-act="table" title="插入表格">▦</button>
+        <button data-act="hr" title="分隔线">—</button>
+      </div>
+      <div class="tb-sep"></div>
+      <div class="tb-group">
+        <button class="tb-z" data-z="zDefinition">定义</button>
+        <button class="tb-z" data-z="zTheorem">定理</button>
+        <button class="tb-z" data-z="zCorollary">推论</button>
+        <button class="tb-z" data-z="zLemma">引理</button>
+        <button class="tb-z" data-z="zExample">例</button>
+        <button class="tb-z" data-z="zTip">点拨</button>
+      </div>
+    </div>
+
     <textarea id="editor" spellcheck="false"></textarea>
   </section>
+
   <section class="preview-pane">
     <div id="pages"></div>
   </section>
@@ -448,6 +571,18 @@ button.primary:hover { background: #2559c9; border-color: #2559c9; }
   <label><span></span><input type="checkbox" id="setTOCItems"><span style="color:#5b6472">目录含定义 / 定理等</span></label>
   <label><span>页眉页脚</span><input type="checkbox" id="setHF" checked><span style="color:#5b6472">zHeader / zFooter</span></label>
   <label><span>页　　码</span><input type="checkbox" id="setPageNum" checked><span style="color:#5b6472">目录罗马·正文阿拉伯</span></label>
+
+  <div class="sep"></div>
+  <h4>索引</h4>
+  <label><span>生成索引</span><input type="checkbox" id="setIndex" checked><span style="color:#5b6472">加粗词条自动成索引</span></label>
+  <div class="index-terms" id="indexTermsWrap">
+    <div class="it-head">
+      <span id="indexCount">0 个词条</span>
+      <button class="mini" id="idxAll">全选</button>
+      <button class="mini" id="idxNone">全不选</button>
+    </div>
+    <div class="it-list" id="indexTerms"></div>
+  </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/marked@9.1.6/marked.min.js"></script>
@@ -484,6 +619,8 @@ const Z_RE = new RegExp('<(\\/)?(' + ALL_TAGS.join('|') + ')\\b([^>]*)>', 'g');
 const SERIF = '"Latin Modern Roman","Times New Roman","Songti SC","SimSun","STSong",serif';
 const SANS  = '"Helvetica Neue",Helvetica,"PingFang SC","Microsoft YaHei",Arial,sans-serif';
 
+const STORE_KEY = 'academic-md-tool.v1';
+
 /* =========================================================
    工具
    ========================================================= */
@@ -497,6 +634,8 @@ const statEl      = $('stat');
 const escapeHtml = s => String(s)
   .replace(/&/g, '&amp;').replace(/</g, '&lt;')
   .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+const collator = new Intl.Collator('zh-Hans-CN', { sensitivity: 'base', numeric: true });
 
 /* 1mm = 多少 CSS px（实测） */
 const MM = (() => {
@@ -517,7 +656,7 @@ function romanize(n) {
   return s || 'i';
 }
 
-/* 读取属性值（大小写不敏感，支持单双引号） */
+/* 读取属性值 */
 function getAttr(attrs, name) {
   if (!attrs) return null;
   let m = new RegExp(name + '\\s*=\\s*"([^"]*)"', 'i').exec(attrs);
@@ -547,8 +686,94 @@ const settings = {
   toc: true,
   tocItems: false,
   hf: true,
-  pageNum: true
+  pageNum: true,
+  index: true
 };
+
+const indexExcluded = new Set();   /* 用户取消勾选的索引词条 */
+let lastTerms = [];
+let lastIndexKey = '';
+
+/* =========================================================
+   本地保存 / 恢复
+   ========================================================= */
+let saveTimer = null;
+let savedFlashTimer = null;
+
+function saveNow() {
+  try {
+    localStorage.setItem(STORE_KEY, JSON.stringify({
+      text: editor.value,
+      settings: settings,
+      indexExcluded: Array.from(indexExcluded),
+      ts: Date.now()
+    }));
+    return true;
+  } catch (e) {
+    console.warn('保存失败：', e);
+    return false;
+  }
+}
+
+function scheduleSave() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => { if (saveNow()) flashSaved(); }, 900);
+}
+
+function flashSaved() {
+  let el = statEl.querySelector('.saved');
+  if (!el) {
+    el = document.createElement('span');
+    el.className = 'saved';
+    el.textContent = '已保存';
+    statEl.appendChild(el);
+  }
+  el.classList.add('on');
+  clearTimeout(savedFlashTimer);
+  savedFlashTimer = setTimeout(() => el.classList.remove('on'), 1400);
+}
+
+function loadSaved() {
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch (e) { return null; }
+}
+
+function restore() {
+  const data = loadSaved();
+  if (!data) return false;
+
+  if (typeof data.text === 'string') editor.value = data.text;
+
+  if (data.settings && typeof data.settings === 'object') {
+    Object.keys(settings).forEach(k => {
+      if (data.settings[k] !== undefined && data.settings[k] !== null) {
+        settings[k] = data.settings[k];
+      }
+    });
+  }
+  if (Array.isArray(data.indexExcluded)) {
+    data.indexExcluded.forEach(t => indexExcluded.add(t));
+  }
+  return true;
+}
+
+function syncSettingsUI() {
+  $('setSize').value = settings.size;
+  $('setSizeVal').textContent = settings.size + 'px';
+  $('setLH').value = settings.lh;
+  $('setLHVal').textContent = settings.lh.toFixed(2);
+  $('setFont').value = settings.font;
+  $('setCover').checked = settings.cover;
+  $('setTOC').checked = settings.toc;
+  $('setTOCItems').checked = settings.tocItems;
+  $('setHF').checked = settings.hf;
+  $('setPageNum').checked = settings.pageNum;
+  $('setIndex').checked = settings.index;
+  $('indexTermsWrap').hidden = !settings.index;
+}
 
 /* =========================================================
    marked 扩展：保护数学公式
@@ -606,7 +831,6 @@ function parseZ(src) {
   return root;
 }
 
-/* 拼接节点内的纯文本 */
 function rawText(node) {
   let s = '';
   for (const c of node.children) {
@@ -617,7 +841,7 @@ function rawText(node) {
 }
 
 /* =========================================================
-   2. 抽取封面 / 页眉页脚信息（并从正文流中移除）
+   2. 抽取封面 / 页眉页脚信息
    ========================================================= */
 function extractMeta(root) {
   const meta = { title: '', author: '', note: '', header: '', footer: '' };
@@ -643,7 +867,7 @@ function extractMeta(root) {
 }
 
 /* =========================================================
-   3. 节点树 → Markdown（z 条目变成占位 div）
+   3. 节点树 → Markdown
    ========================================================= */
 function serializeNodes(node) {
   let out = '';
@@ -729,18 +953,13 @@ function expandZBlocks(root) {
 
 /* =========================================================
    6. 自动编号
-   —— 标题占用层级路径（如 1、1.2、1.2.3）
-   —— 条目编号 = 当前标题路径 + 【该类型】在本标题下的独立序号
-      例：标题 1.2 下 → 定义 1.2.1、定理 1.2.1、例 1.2.1、再一个定义 1.2.2
    ========================================================= */
 function numberItems(root) {
   const nodes = root.querySelectorAll('h1,h2,h3,h4,h5,h6,.z-item');
-  const hc = [];                        /* 标题层级计数 */
-  const counters = Object.create(null); /* 按条目类型独立计数 */
+  const hc = [];
+  const counters = Object.create(null);
 
-  const resetCounters = () => {
-    for (const k in counters) delete counters[k];
-  };
+  const resetCounters = () => { for (const k in counters) delete counters[k]; };
 
   nodes.forEach(el => {
     if (/^H[1-6]$/.test(el.tagName)) {
@@ -749,9 +968,7 @@ function numberItems(root) {
       while (hc.length < d) hc.push(0);
       hc[d - 1] = (hc[d - 1] || 0) + 1;
 
-      /* 进入新的标题，所有类型计数归零 */
       resetCounters();
-
       el.dataset.num = hc.filter(v => v > 0).join('.') || '1';
     } else {
       const tag = el.dataset.ztype || 'zItem';
@@ -817,7 +1034,6 @@ function getStage() {
   return stageEl;
 }
 
-/* 对齐所有条目标签宽度 */
 function measureZHeads(root) {
   const heads = root.querySelectorAll('.z-head');
   if (!heads.length) return 0;
@@ -861,7 +1077,7 @@ function makePage(kind) {
 }
 
 /* =========================================================
-   10. 分页（把块级元素依次灌入页面）
+   10. 分页
    ========================================================= */
 function flowInto(items, kind, host) {
   const pages = [];
@@ -871,7 +1087,7 @@ function flowInto(items, kind, host) {
   pages.push(page);
 
   let body = page.body;
-  let sealed = false;   /* 该页已被单个超高块撑高，后续内容另起一页 */
+  let sealed = false;
 
   const newPage = () => {
     page = makePage(kind);
@@ -891,7 +1107,6 @@ function flowInto(items, kind, host) {
     if (!isOverflow()) continue;
 
     if (!sealed && body.children.length === 1) {
-      /* 单个块本身高于一页：允许该页自动长高 */
       page.el.classList.add('page-tall');
       sealed = true;
     } else {
@@ -911,9 +1126,10 @@ function flowInto(items, kind, host) {
 /* =========================================================
    11. 页眉 / 页脚 / 页码
    ========================================================= */
-function decoratePages(pages, kind, ctx) {
+function decoratePages(pages, kind, ctx, offset) {
+  offset = offset || 0;
   pages.forEach((p, i) => {
-    const n = i + 1;
+    const n = offset + i + 1;
 
     if (ctx.showHF) {
       if (ctx.header) p.header.innerHTML = mdInline(ctx.header);
@@ -921,7 +1137,7 @@ function decoratePages(pages, kind, ctx) {
     }
 
     if (ctx.showPageNum) {
-      p.fnum.textContent = kind === 'toc' ? romanize(n) : String(n);
+      p.fnum.textContent = kind === 'toc' ? romanize(i + 1) : String(n);
     } else {
       p.fnum.textContent = '';
     }
@@ -1062,7 +1278,171 @@ function buildCover(meta) {
 }
 
 /* =========================================================
-   14. 主渲染流程
+   14. 索引：从正文收集加粗词条
+   ========================================================= */
+function strongText(el) {
+  const c = el.cloneNode(true);
+  c.querySelectorAll('.katex-mathml').forEach(n => n.remove());
+  return (c.textContent || '').replace(/\s+/g, ' ').trim();
+}
+
+function collectIndex(pages) {
+  const map = new Map();
+
+  pages.forEach((p, i) => {
+    const pageNo = i + 1;
+    p.body.querySelectorAll('strong, b').forEach(el => {
+      if (el.closest('.z-head')) return;
+      let t = strongText(el);
+      if (!t) return;
+      if (t.length > 40) return;
+      t = t.replace(/^[\s，。、；：,.;:]+|[\s，。、；：,.;:]+$/g, '');
+      if (!t) return;
+
+      if (!map.has(t)) map.set(t, []);
+      const arr = map.get(t);
+      if (arr[arr.length - 1] !== pageNo) arr.push(pageNo);
+    });
+  });
+
+  const list = [];
+  map.forEach((pagesArr, term) => list.push({ term, pages: pagesArr }));
+  return list;
+}
+
+/* 索引词条面板同步 */
+function syncIndexPanel(data) {
+  const terms = data.map(d => d.term).sort((a, b) => collator.compare(a, b));
+  lastTerms = terms;
+
+  const countEl = $('indexCount');
+  if (countEl) countEl.textContent = terms.length + ' 个词条';
+
+  const key = terms.join('\u0001');
+  if (key === lastIndexKey) return;
+  lastIndexKey = key;
+
+  const list = $('indexTerms');
+  if (!list) return;
+
+  list.innerHTML = '';
+  terms.forEach(t => {
+    const row = document.createElement('label');
+    row.className = 'it-row';
+
+    const cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.checked = !indexExcluded.has(t);
+    cb.addEventListener('change', () => {
+      if (cb.checked) indexExcluded.delete(t);
+      else indexExcluded.add(t);
+      scheduleRender(280);
+      scheduleSave();
+    });
+
+    const sp = document.createElement('span');
+    sp.textContent = t;
+    sp.title = t;
+
+    row.appendChild(cb);
+    row.appendChild(sp);
+    list.appendChild(row);
+  });
+}
+
+/* 生成一个索引行 */
+function makeIndexRow(e) {
+  const row = document.createElement('div');
+  row.className = 'idx-row';
+
+  const t = document.createElement('span');
+  t.className = 'idx-term';
+  t.textContent = e.term;
+
+  const d = document.createElement('span');
+  d.className = 'idx-dots';
+
+  const pg = document.createElement('span');
+  pg.className = 'idx-pages';
+  pg.textContent = e.pages.join(', ');
+
+  row.appendChild(t);
+  row.appendChild(d);
+  row.appendChild(pg);
+  return row;
+}
+
+/* 以某个缩放比排一次索引页 */
+function flowIndexOnce(entries, host, scale) {
+  const pages = [];
+
+  let page = makePage('index');
+  host.appendChild(page.el);
+  pages.push(page);
+
+  const heading = document.createElement('div');
+  heading.className = 'index-heading';
+  heading.textContent = '索　引';
+  page.body.appendChild(heading);
+
+  const makeList = () => {
+    const l = document.createElement('div');
+    l.className = 'index-list';
+    l.style.setProperty('--idx-scale', String(scale));
+    page.body.appendChild(l);
+    return l;
+  };
+
+  let list = makeList();
+
+  const newPage = () => {
+    page = makePage('index');
+    host.appendChild(page.el);
+    pages.push(page);
+    list = makeList();
+  };
+
+  const isOverflow = () => page.body.scrollHeight > page.body.clientHeight + 1;
+
+  for (const e of entries) {
+    const row = makeIndexRow(e);
+    list.appendChild(row);
+
+    if (!isOverflow()) continue;
+
+    list.removeChild(row);
+    if (list.children.length === 0) {
+      /* 单条就超出一页：极端情况，强行放入并允许长高 */
+      list.appendChild(row);
+      page.el.classList.add('page-tall');
+    } else {
+      newPage();
+      list.appendChild(row);
+    }
+  }
+
+  return pages;
+}
+
+/* 自动压缩：条目越多，字号与间距越小，目标 ≤ 3 页 */
+function layoutIndex(entries, host) {
+  if (!entries.length) return [];
+
+  const scales = [1, 0.93, 0.86, 0.79, 0.72, 0.66, 0.6];
+  let result = [];
+
+  for (let i = 0; i < scales.length; i++) {
+    if (result.length) result.forEach(p => p.el.remove());
+    result = flowIndexOnce(entries, host, scales[i]);
+    if (result.length <= 3) break;
+    if (i === scales.length - 1) break;
+  }
+
+  return result;
+}
+
+/* =========================================================
+   15. 主渲染流程
    ========================================================= */
 function render() {
   if (!window.marked) {
@@ -1107,7 +1487,7 @@ function render() {
   }
   void stage.offsetWidth;
 
-  /* ⑧ 取出顶层块，清空 stage */
+  /* ⑧ 取出顶层块 */
   const items = Array.from(stage.children);
   stage.innerHTML = '';
 
@@ -1125,19 +1505,57 @@ function render() {
 
   /* ⑩ 正文分页 */
   const bodyPages = flowInto(items, 'body', host);
-  decoratePages(bodyPages, 'body', ctx);
+  decoratePages(bodyPages, 'body', ctx, 0);
 
-  /* ⑪ 目录页 */
+  /* ⑪ 索引数据 */
+  let indexData = [];
+  if (settings.index) {
+    indexData = collectIndex(bodyPages);
+    syncIndexPanel(indexData);
+  }
+
+  const indexEntries = settings.index
+    ? indexData
+        .filter(d => !indexExcluded.has(d.term))
+        .sort((a, b) => collator.compare(a.term, b.term))
+    : [];
+
+  /* ⑫ 目录页 */
   let tocPages = [];
   if (settings.toc) {
     const tocRows = buildTOCRows(bodyPages);
+
+    if (indexEntries.length) {
+      const row = document.createElement('div');
+      row.className = 'toc-row';
+      const t = document.createElement('span');
+      t.className = 'toc-text';
+      t.textContent = '索　引';
+      const d = document.createElement('span');
+      d.className = 'toc-dots';
+      const pg = document.createElement('span');
+      pg.className = 'toc-page';
+      pg.textContent = String(bodyPages.length + 1);
+      row.appendChild(t);
+      row.appendChild(d);
+      row.appendChild(pg);
+      tocRows.push(row);
+    }
+
     if (tocRows.length) {
       tocPages = flowTOC(tocRows, host);
-      decoratePages(tocPages, 'toc', ctx);
+      decoratePages(tocPages, 'toc', ctx, 0);
     }
   }
 
-  /* ⑫ 组装 */
+  /* ⑬ 索引页（自动压缩） */
+  let indexPages = [];
+  if (indexEntries.length) {
+    indexPages = layoutIndex(indexEntries, host);
+    decoratePages(indexPages, 'index', ctx, bodyPages.length);
+  }
+
+  /* ⑭ 组装 */
   pagesEl.innerHTML = '';
   pagesEl.style.transform = '';
   pagesEl.style.marginBottom = '';
@@ -1149,19 +1567,20 @@ function render() {
   }
   tocPages.forEach(p => pagesEl.appendChild(p.el));
   bodyPages.forEach(p => pagesEl.appendChild(p.el));
+  indexPages.forEach(p => pagesEl.appendChild(p.el));
 
-  /* ⑬ 清理离屏容器 */
+  /* ⑮ 清理离屏容器 */
   host.remove();
 
-  /* ⑭ 统计 */
-  const total = (hasCover ? 1 : 0) + tocPages.length + bodyPages.length;
+  /* ⑯ 统计 */
+  const total = (hasCover ? 1 : 0) + tocPages.length + bodyPages.length + indexPages.length;
   statEl.textContent = src.length + ' 字符 · ' + total + ' 页';
 
   requestAnimationFrame(fitPages);
 }
 
 /* =========================================================
-   15. 纸张自适应缩放
+   16. 纸张自适应缩放
    ========================================================= */
 function fitPages() {
   const avail = previewPane.clientWidth - 56;
@@ -1176,18 +1595,212 @@ function fitPages() {
 }
 
 /* =========================================================
-   16. 应用排版设置
+   17. 编辑器：便捷工具栏 & 选区识别
    ========================================================= */
-function applySettings() {
+function onEditorChange() {
+  scheduleRender(260);
+  scheduleSave();
+}
+
+/* 在选区两侧加标记（已存在则取消） */
+function surround(before, after, placeholder) {
+  const ta = editor;
+  ta.focus();
+
+  const val = ta.value;
+  const start = ta.selectionStart;
+  const end = ta.selectionEnd;
+  const sel = val.slice(start, end);
+
+  /* 已经是包裹状态 → 取消 */
+  if (start >= before.length &&
+      val.slice(start - before.length, start) === before &&
+      val.slice(end, end + after.length) === after) {
+    ta.value = val.slice(0, start - before.length) + sel + val.slice(end + after.length);
+    const p = start - before.length;
+    ta.selectionStart = p;
+    ta.selectionEnd = p + sel.length;
+    onEditorChange();
+    return;
+  }
+
+  const inner = sel || placeholder || '';
+  ta.value = val.slice(0, start) + before + inner + after + val.slice(end);
+  ta.selectionStart = start + before.length;
+  ta.selectionEnd = start + before.length + inner.length;
+  onEditorChange();
+}
+
+/* 对选中的每一行做变换 */
+function lineTransform(fn) {
+  const ta = editor;
+  ta.focus();
+
+  const val = ta.value;
+  const start = ta.selectionStart;
+  const end = ta.selectionEnd;
+
+  const lineStart = val.lastIndexOf('\n', start - 1) + 1;
+  let lineEnd = val.indexOf('\n', end);
+  if (lineEnd < 0) lineEnd = val.length;
+
+  const block = val.slice(lineStart, lineEnd);
+  const lines = block.split('\n').map(fn);
+  const newBlock = lines.join('\n');
+
+  ta.value = val.slice(0, lineStart) + newBlock + val.slice(lineEnd);
+  ta.selectionStart = lineStart;
+  ta.selectionEnd = lineStart + newBlock.length;
+  onEditorChange();
+}
+
+function applyHeading(n) {
+  lineTransform(line => {
+    const m = /^(#{1,6})\s+/.exec(line);
+    if (m) {
+      if (m[1].length === n) return line.slice(m[0].length);
+      return '#'.repeat(n) + ' ' + line.slice(m[0].length);
+    }
+    return line.trim() ? '#'.repeat(n) + ' ' + line : line;
+  });
+}
+
+function applyList(marker) {
+  lineTransform(line => {
+    if (!line.trim()) return line;
+    const m = /^(\s*)([-*+]|\d+\.)\s+/.exec(line);
+    if (m) {
+      const isUL = /^[-*+]$/.test(m[2]);
+      const wantUL = marker === '- ';
+      if (isUL === wantUL) {
+        /* 同类型 → 取消 */
+        return line.replace(/^(\s*)([-*+]|\d+\.)\s+/, '$1');
+      }
+      return line.replace(/^(\s*)([-*+]|\d+\.)\s+/, '$1' + marker);
+    }
+    return line.replace(/^(\s*)/, '$1' + marker);
+  });
+}
+
+function applyQuote() {
+  lineTransform(line => {
+    if (!line.trim()) return line;
+    return /^>\s?/.test(line) ? line.replace(/^>\s?/, '') : '> ' + line;
+  });
+}
+
+function insertText(text, caretOffset) {
+  const ta = editor;
+  ta.focus();
+  const val = ta.value;
+  const start = ta.selectionStart;
+  const end = ta.selectionEnd;
+
+  ta.value = val.slice(0, start) + text + val.slice(end);
+  const pos = start + (caretOffset == null ? text.length : caretOffset);
+  ta.selectionStart = pos;
+  ta.selectionEnd = pos;
+  onEditorChange();
+}
+
+/* 插入 z 标签（选区包裹 / 再次点击取消） */
+function insertZTag(tag) {
+  const ta = editor;
+  ta.focus();
+
+  const val = ta.value;
+  const start = ta.selectionStart;
+  const end = ta.selectionEnd;
+  const sel = val.slice(start, end);
+
+  const open = '<' + tag + '>';
+  const close = '</' + tag + '>';
+
+  /* 已被同类包裹 → 取消 */
+  if (start >= open.length &&
+      val.slice(start - open.length, start) === open &&
+      val.slice(end, end + close.length) === close) {
+    ta.value = val.slice(0, start - open.length) + sel + val.slice(end + close.length);
+    const p = start - open.length;
+    ta.selectionStart = p;
+    ta.selectionEnd = p + sel.length;
+    onEditorChange();
+    return;
+  }
+
+  const inner = sel || '在此输入内容';
+  const pre  = (start > 0 && val[start - 1] !== '\n') ? '\n\n' : '';
+  const post = (end < val.length && val[end] !== '\n') ? '\n\n' : '';
+
+  const text = pre + open + inner + close + post;
+  ta.value = val.slice(0, start) + text + val.slice(end);
+
+  const p = start + pre.length + open.length;
+  ta.selectionStart = p;
+  ta.selectionEnd = p + inner.length;
+  onEditorChange();
+}
+
+/* 工具栏动作 */
+const TB_ACTIONS = {
+  bold:   () => surround('**', '**', '粗体'),
+  italic: () => surround('*', '*', '斜体'),
+  strike: () => surround('~~', '~~', '删除线'),
+  code:   () => surround('`', '`', 'code'),
+  math:   () => surround('$', '$', 'x'),
+  h1:     () => applyHeading(1),
+  h2:     () => applyHeading(2),
+  h3:     () => applyHeading(3),
+  ul:     () => applyList('- '),
+  ol:     () => applyList('1. '),
+  quote:  () => applyQuote(),
+  table:  () => insertText('\n| 列 1 | 列 2 | 列 3 |\n| --- | --- | --- |\n| 内容 | 内容 | 内容 |\n'),
+  hr:     () => insertText('\n\n---\n\n')
+};
+
+$('mdToolbar').addEventListener('click', e => {
+  const btn = e.target.closest('button');
+  if (!btn) return;
+
+  if (btn.dataset.z) {
+    insertZTag(btn.dataset.z);
+    return;
+  }
+  const act = btn.dataset.act;
+  if (act && TB_ACTIONS[act]) {
+    TB_ACTIONS[act]();
+    editor.focus();
+  }
+});
+
+/* 快捷键 */
+editor.addEventListener('keydown', e => {
+  if (!(e.ctrlKey || e.metaKey)) return;
+  const k = e.key.toLowerCase();
+  if (k === 'b') { e.preventDefault(); TB_ACTIONS.bold(); }
+  else if (k === 'i') { e.preventDefault(); TB_ACTIONS.italic(); }
+  else if (k === 's') { e.preventDefault(); saveNow() && flashSaved(); }
+});
+
+editor.addEventListener('input', onEditorChange);
+
+/* =========================================================
+   18. 应用排版设置
+   ========================================================= */
+function applyRootVars() {
   const root = document.documentElement;
   root.style.setProperty('--doc-size', settings.size + 'px');
   root.style.setProperty('--doc-lh', String(settings.lh));
   root.style.setProperty('--doc-font', settings.font === 'sans' ? SANS : SERIF);
+}
+
+function applySettings() {
+  applyRootVars();
   render();
 }
 
 /* =========================================================
-   17. 事件绑定
+   19. 事件绑定
    ========================================================= */
 let renderTimer = null;
 function scheduleRender(delay) {
@@ -1195,7 +1808,6 @@ function scheduleRender(delay) {
   renderTimer = setTimeout(render, delay || 260);
 }
 
-editor.addEventListener('input', () => scheduleRender(260));
 window.addEventListener('resize', () => fitPages());
 
 /* ---- 设置面板 ---- */
@@ -1211,21 +1823,50 @@ $('setSize').addEventListener('input', e => {
   settings.size = parseFloat(e.target.value);
   $('setSizeVal').textContent = settings.size + 'px';
   applySettings();
+  scheduleSave();
 });
 $('setLH').addEventListener('input', e => {
   settings.lh = parseFloat(e.target.value);
   $('setLHVal').textContent = settings.lh.toFixed(2);
   applySettings();
+  scheduleSave();
 });
 $('setFont').addEventListener('change', e => {
   settings.font = e.target.value;
   applySettings();
+  scheduleSave();
 });
-$('setCover').addEventListener('change', e => { settings.cover = e.target.checked; render(); });
-$('setTOC').addEventListener('change', e => { settings.toc = e.target.checked; render(); });
-$('setTOCItems').addEventListener('change', e => { settings.tocItems = e.target.checked; render(); });
-$('setHF').addEventListener('change', e => { settings.hf = e.target.checked; render(); });
-$('setPageNum').addEventListener('change', e => { settings.pageNum = e.target.checked; render(); });
+$('setCover').addEventListener('change', e => { settings.cover = e.target.checked; render(); scheduleSave(); });
+$('setTOC').addEventListener('change', e => { settings.toc = e.target.checked; render(); scheduleSave(); });
+$('setTOCItems').addEventListener('change', e => { settings.tocItems = e.target.checked; render(); scheduleSave(); });
+$('setHF').addEventListener('change', e => { settings.hf = e.target.checked; render(); scheduleSave(); });
+$('setPageNum').addEventListener('change', e => { settings.pageNum = e.target.checked; render(); scheduleSave(); });
+
+$('setIndex').addEventListener('change', e => {
+  settings.index = e.target.checked;
+  $('indexTermsWrap').hidden = !settings.index;
+  render();
+  scheduleSave();
+});
+
+$('idxAll').addEventListener('click', () => {
+  lastTerms.forEach(t => indexExcluded.delete(t));
+  document.querySelectorAll('#indexTerms input[type=checkbox]').forEach(cb => { cb.checked = true; });
+  scheduleRender(280);
+  scheduleSave();
+});
+
+$('idxNone').addEventListener('click', () => {
+  lastTerms.forEach(t => indexExcluded.add(t));
+  document.querySelectorAll('#indexTerms input[type=checkbox]').forEach(cb => { cb.checked = false; });
+  scheduleRender(280);
+  scheduleSave();
+});
+
+/* ---- 保存 ---- */
+$('btnSave').addEventListener('click', () => {
+  if (saveNow()) flashSaved();
+});
 
 /* ---- 打开文件 ---- */
 $('btnOpen').addEventListener('click', () => $('fileInput').click());
@@ -1233,14 +1874,17 @@ $('fileInput').addEventListener('change', e => {
   const f = e.target.files && e.target.files[0];
   if (!f) return;
   const fr = new FileReader();
-  fr.onload = () => { editor.value = fr.result; render(); };
+  fr.onload = () => {
+    editor.value = fr.result;
+    render();
+    scheduleSave();
+  };
   fr.readAsText(f, 'utf-8');
   e.target.value = '';
 });
 
 /* ---- 导出 HTML ---- */
 $('btnExport').addEventListener('click', () => {
-  /* 导出前清除屏幕缩放，导出后恢复 */
   const savedTransform = pagesEl.style.transform;
   const savedMargin = pagesEl.style.marginBottom;
   pagesEl.style.transform = '';
@@ -1310,7 +1954,7 @@ function download(filename, text) {
 }
 
 /* =========================================================
-   18. 示例文档
+   20. 示例文档
    ========================================================= */
 const SAMPLE = [
 '<zTitle>抽象代数讲义</zTitle>',
@@ -1330,17 +1974,17 @@ const SAMPLE = [
 '',
 '<zTheorem Description="拉格朗日">设 $G$ 为有限群，$H\\le G$，则 $|H|$ 整除 $|G|$。</zTheorem>',
 '',
-'<zCorollary>有限群 $G$ 中每个元素的阶都整除 $|G|$。</zCorollary>',
+'<zCorollary>有限群 $G$ 中每个元素的**阶**都整除 $|G|$。</zCorollary>',
 '',
 '<zLemma Description="子群判别法">设 $H$ 是群 $G$ 的非空子集，则 $H\\le G$ 当且仅当对任意 $a,b\\in H$ 都有 $ab^{-1}\\in H$。</zLemma>',
 '',
-'<zTip>验证子群时，先检查单位元是否在 $H$ 中往往是最快的切入点。</zTip>',
+'<zTip>验证**子群**时，先检查**单位元**是否在 $H$ 中往往是最快的切入点。</zTip>',
 '',
 '## 子群与陪集',
 '',
 '<zDefinition>设 $H$ 是群 $G$ 的非空子集，若 $H$ 在 $G$ 的运算下也构成群，则称 $H$ 为 $G$ 的**子群**，记作 $H\\le G$。</zDefinition>',
 '',
-'<zExample>在 $(\\mathbb{Z},+)$ 中，对任意 $n\\in\\mathbb{Z}$，集合 $n\\mathbb{Z}=\\{nk\\mid k\\in\\mathbb{Z}\\}$ 都是 $\\mathbb{Z}$ 的子群。</zExample>',
+'<zExample>在 $(\\mathbb{Z},+)$ 中，对任意 $n\\in\\mathbb{Z}$，集合 $n\\mathbb{Z}=\\{nk\\mid k\\in\\mathbb{Z}\\}$ 都是 $\\mathbb{Z}$ 的**子群**。</zExample>',
 '',
 '<zDefinition>设 $H\\le G$，$a\\in G$，称集合',
 '$$aH=\\{ah\\mid h\\in H\\}$$',
@@ -1350,11 +1994,11 @@ const SAMPLE = [
 '',
 '## 环与域',
 '',
-'<zDefinition>设 $R$ 是一个非空集合，在 $R$ 上定义了两个二元运算 $+$ 与 $\\cdot$，若 $(R,+)$ 构成交换群，$(R,\\cdot)$ 构成半群，且乘法对加法满足分配律，则称 $(R,+,\\cdot)$ 为**环**。</zDefinition>',
+'<zDefinition>设 $R$ 是一个非空集合，在 $R$ 上定义了两个二元运算 $+$ 与 $\\cdot$，若 $(R,+)$ 构成**交换群**，$(R,\\cdot)$ 构成**半群**，且乘法对加法满足**分配律**，则称 $(R,+,\\cdot)$ 为**环**。</zDefinition>',
 '',
-'<zTheorem Description="商环基本定理">设 $R$ 是有单位元的环，$I$ 是 $R$ 的理想，则商环 $R/I$ 存在且唯一。</zTheorem>',
+'<zTheorem Description="商环基本定理">设 $R$ 是有单位元的环，$I$ 是 $R$ 的**理想**，则**商环** $R/I$ 存在且唯一。</zTheorem>',
 '',
-'<zTip>理想在环论中的地位，恰如正规子群在群论中的地位。</zTip>',
+'<zTip>**理想**在环论中的地位，恰如**正规子群**在群论中的地位。</zTip>',
 '',
 '<div style="border-left:3px solid #8b95a3; padding:.15em 0 .15em 1.1em; color:#4a5561;">',
 '**注记**：这一段写在原生 HTML 块中，其中的 Markdown 依然会被正确解析，',
@@ -1373,21 +2017,22 @@ const SAMPLE = [
 $('btnSample').addEventListener('click', () => {
   editor.value = SAMPLE;
   render();
+  scheduleSave();
 });
 
 /* =========================================================
-   19. 启动
+   21. 启动
    ========================================================= */
 function init() {
   setupMarked();
 
-  const root = document.documentElement;
-  root.style.setProperty('--doc-size', settings.size + 'px');
-  root.style.setProperty('--doc-lh', String(settings.lh));
-  root.style.setProperty('--doc-font', SERIF);
-  root.style.setProperty('--z-head-w', 'max-content');
+  const restored = restore();
 
-  editor.value = SAMPLE;
+  applyRootVars();
+  syncSettingsUI();
+  document.documentElement.style.setProperty('--z-head-w', 'max-content');
+
+  if (!restored) editor.value = SAMPLE;
 
   const go = () => {
     render();
